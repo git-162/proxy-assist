@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assistant</title>
+</head>
+<body>
+  <h1>Ask the AI</h1>
+  <input type="text" id="userInput" placeholder="Type your question" style="width: 300px;" />
+  <button onclick="handleSubmit()">Submit</button>
+  <p id="responseBox"></p>
+
+  <script>
+    async function handleSubmit() {
+      const input = document.getElementById('userInput').value;
+      const responseBox = document.getElementById('responseBox');
+
+      if (!input.trim()) {
+        responseBox.textContent = "Please enter something to ask.";
+        return;
+      }
+
+      responseBox.textContent = "Thinking...";
+
+      try {
+        const response = await fetch("http://localhost:3000/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: input })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.reply) {
+          responseBox.textContent = `AI Response: ${data.reply}`;
+        } else if (data.error) {
+          responseBox.textContent = `Error: ${data.error}`;
+        } else {
+          responseBox.textContent = "Unexpected response format.";
+        }
+
+      } catch (error) {
+        console.error("Fetch failed:", error);
+        responseBox.textContent = "Error connecting to AI.";
+      }
+    }
+  </script>
+</body>
+</html>
+<script src="script.js"></script>
